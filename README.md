@@ -1,0 +1,1 @@
+# mapr-monitoring-plugin
