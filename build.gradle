@@ -1,0 +1,41 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.0.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.mapr'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven {
+        url "http://repository.mapr.com/maven"
+    }
+}
+
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter')
+    compile('org.springframework.boot:spring-boot-starter-web')
+    compile('io.projectreactor:reactor-core:3.1.5.RELEASE')
+    compile("io.github.openfeign:feign-core:9.5.1")
+    compile("io.github.openfeign.form:feign-form:3.0.3")
+    compile("io.github.openfeign:feign-jackson:9.5.1")
+    compile("com.mapr.streams:mapr-streams:6.0.0-mapr")
+    compile("org.apache.kafka:kafka-clients:0.9.0.0-mapr-1801-streams-6.0.0")
+    compileOnly('org.projectlombok:lombok')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
