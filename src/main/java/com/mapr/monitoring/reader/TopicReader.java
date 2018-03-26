@@ -1,39 +1,50 @@
 package com.mapr.monitoring.reader;
 
+import com.mapr.monitoring.client.WriteClient;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class TopicReader {
 
+    private final WriteClient client;
     private final KafkaConsumer<String, String> consumer;
 
-    public void readTopic(String metricStream, String host, String topic) {
-        consumer.subscribe(Collections.singletonList(metricStream + ":" + host + "_" + topic));
-        int timeouts = 0;
-        while (true) {
-            // read records with a short timeout. If we time out, we don't really care.
-            ConsumerRecords<String, String> records = consumer.poll(200);
-            if (records.count() == 0) {
-                timeouts++;
-            } else {
-                log.info("Got {} records after {} timeouts\n", records.count(), timeouts);
-                timeouts = 0;
-            }
+    @Value("${metric.stream}")
+    private String stream;
 
-            for (ConsumerRecord<String, String> record : records) {
+    @Value("${metric.host}")
+    private String host;
 
-                log.info("=======> VALUE: " + record.value().trim());
+    @Value("${metric.topic}")
+    private String topic;
+
+    @Value("${metric.read.timeout}")
+    private int readTimeout;
+
+    public void readTopic() {
+        consumer.subscribe(Collections.singletonList(String.format("%s:%s_%s", stream, host, topic)));
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        executorService.execute(() -> {
+            while (true) {
+                ConsumerRecords<String, String> records = consumer.poll(readTimeout);
+                for (ConsumerRecord<String, String> record : records) {
+                    log.info("=======> VALUE: " + record.value().trim());
+//                    log.info(client.writeMetric(record.value().trim()));
+                }
             }
-        }
+        });
     }
 }
 
