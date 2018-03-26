@@ -18,7 +18,6 @@ public class TopicReader {
 
     public void readTopic(String metricStream, String host, String topic) {
         consumer.subscribe(Collections.singletonList(metricStream + ":" + host + "_" + topic));
-        System.out.println("laksdjflasjdf");
         int timeouts = 0;
         while (true) {
             // read records with a short timeout. If we time out, we don't really care.
