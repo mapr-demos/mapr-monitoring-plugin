@@ -35,7 +35,7 @@ public class StreamingService {
                 .flatMap(this::convertToStringStream)
                 .collect(Collectors.toSet());
 
-        kafkaClient.subscribeOnMessages(convertedTopics, String.class)
+        kafkaClient.subscribeOnMessages(convertedTopics)
                 .map(this::convertToTelegrafFormat)
                 .log()
                 .doOnNext(telegrafClient::writeMetric)

@@ -22,10 +22,10 @@ sourceCompatibility = 1.8
 repositories {
     mavenCentral()
     maven {
-        url "http://repository.mapr.com/maven"
+        url 'http://repository.mapr.com/maven'
     }
     maven {
-        url "http://23.21.204.176/nexus/content/groups/mapr-public/"
+        url 'http://23.21.204.176/nexus/content/groups/mapr-public/'
     }
 }
 
