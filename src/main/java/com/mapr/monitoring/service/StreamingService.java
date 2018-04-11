@@ -13,7 +13,6 @@ import reactor.core.scheduler.Schedulers;
 
 import javax.annotation.PostConstruct;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,6 +20,9 @@ import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
 public class StreamingService {
+
+    private static final long NANOSECOND_MULTIPLIER = 1000000000L;
+
     private final AdminClient adminClient;
     private final KafkaClient kafkaClient;
     private final TelegrafClient telegrafClient;
@@ -40,7 +42,7 @@ public class StreamingService {
                 .log()
                 .doOnNext(telegrafClient::writeMetric)
                 .doOnError(t -> log.error("Error while sending metric to telegraf", t))
-                .subscribeOn(Schedulers.single())
+                .subscribeOn(Schedulers.newSingle("telegraf"))
                 .subscribe();
     }
 
@@ -67,8 +69,7 @@ public class StreamingService {
 
         String[] split = withoutPut.split(" ");
 
-        String timestamp = TimeUnit.NANOSECONDS.convert(Long.parseLong(split[1]), TimeUnit.MILLISECONDS) + "";
-
+        long timestamp = Long.parseLong(split[1]) * NANOSECOND_MULTIPLIER;
         return String.format("%s,%s value=%s %s", split[0], tags, split[2], timestamp);
     }
 
